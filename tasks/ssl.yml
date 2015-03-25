@@ -1,0 +1,29 @@
+---
+- name: Create SSL directory
+  file: path=/etc/nginx/ssl/ state=directory owner=root group=root
+  sudo: yes
+
+- name: Apply ssl site conf file
+  template: src=passenger.ssl.site.j2 dest=/etc/nginx/sites-enabled/{{ app_name }} owner=root group=root
+  sudo: yes
+  when: passenger == "true"
+
+- name: Copy SSL Certs to server
+  copy: src={{ item }} dest=/etc/nginx/ssl/ owner=root group=root force=yes
+  sudo: yes
+  with_first_found:
+    - files:
+        - "server.crt"
+      paths:
+        - ../../../projects/{{ app_name }}/files/ssl
+        - ../files/ssl
+
+- name: Copy SSL Certs to server
+  copy: src={{ item }} dest=/etc/nginx/ssl/ owner=root group=root force=yes
+  sudo: yes
+  with_first_found:
+    - files:
+        - "server.key"
+      paths:
+        - ../../../projects/{{ app_name }}/files/ssl
+        - ../files/ssl

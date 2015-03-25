@@ -1,0 +1,17 @@
+---
+app_name: test
+app_path: /srv/test/public
+ssl: 'false'
+passenger: 'true'
+updates: 'true'
+custom: 'true'
+nginx:
+  version: 1.6.2
+  upstream_port: 5000
+  user: ubuntu
+  group: ubuntu
+  passenger:
+    version: 5.0.6
+    prestart: http://test.com
+domains: test.com
+server_env: production
