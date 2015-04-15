@@ -1,17 +1,21 @@
 ---
-- name: Create SSL directory
+- name: SSL | Create SSL directory
   file: path=/etc/nginx/ssl/ state=directory owner=root group=root
   sudo: yes
 
-- name: Apply ssl site conf file
+- name: SSL | Apply SSL VHOST file
   template: src=passenger.ssl.site.j2 dest=/etc/nginx/sites-enabled/{{ app_name }} owner=root group=root
   sudo: yes
   when: passenger == "true"
 
-- name: Copy SSL Certs to server
-  copy: src={{ nginx.ssl_cert.crt }} dest=/etc/nginx/ssl/ owner=root group=root force=yes
+- name: SSL | Copy SSL Certs to server
+  copy: src={{ nginx_ssl_crt }} dest=/etc/nginx/ssl/ owner=root group=root force=yes
   sudo: yes
 
-- name: Copy SSL Certs to server
-  copy: src={{ nginx.ssl_cert.key }} dest=/etc/nginx/ssl/ owner=root group=root force=yes
+- name: SSL | Copy SSL Certs to server
+  copy: src={{ nginx_ssl_key }} dest=/etc/nginx/ssl/ owner=root group=root force=yes
+  sudo: yes
+
+- name: SSL | Create DHPARAM cert
+  command: openssl dhparam -outform pem -out /etc/nginx/ssl/dhparam2048.pem 2048
   sudo: yes

@@ -1,23 +1,23 @@
 ---
-- name: Create Sites Enabled Directory
+- name: Custom | Create Sites Enabled Directory
   file: path=/etc/nginx/sites-enabled state=directory owner=root group=root
   sudo: yes
 
-- name: Apply defaultserver conf file
+- name: Custom | Apply defaultserver conf file
   template: src=defaultserver.j2 dest=/etc/nginx/sites-enabled/zzzzzdefaultserver owner=root group=root
   sudo: yes
 
-- name: Apply site conf file
+- name: Custom | Apply site conf file
   template: src=site.com.j2 dest=/etc/nginx/sites-enabled/{{ app_name }} owner=root group=root
   sudo: yes
   when: passenger == "false"
 
-- name: Apply Passenger site conf file
+- name: Custom | Apply Passenger site conf file
   template: src=passenger.site.j2 dest=/etc/nginx/sites-enabled/{{ app_name }} owner=root group=root
   sudo: yes
   when: passenger == "true"
 
-- name:  Custom Config template placement
+- name: Custom |  Custom Config template placement
   template: src=passenger.conf.j2 dest=/etc/nginx/conf.d/passenger.conf  owner=root group=root
   sudo: yes
   when: passenger == "true"
