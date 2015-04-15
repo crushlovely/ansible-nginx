@@ -7,17 +7,7 @@ server {
 
         server_name {{ domains|join(' ') }};
         root {{ app_path }}/current/public;
+        passenger_enabled on;
 
         error_page 500 502 503 504 /50x.html;
-
-        location / {
-                $uri $uri/index.html $uri.html
-        }
-
-        location /crushops/nginx-status {
-                stub_status on;
-                access_log off;
-                allow 127.0.0.1;
-                deny all;
-        }
 }
