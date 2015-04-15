@@ -8,10 +8,14 @@ custom: 'true'
 nginx:
   version: 1.6.2
   upstream_port: 5000
-  user: ubuntu
-  group: ubuntu
+  ssl_cert:
+    crt: ""
+    key: ""
   passenger:
     version: 5.0.6
     prestart: http://test.com
+app:
+  user: ubuntu
+  group: ubuntu
 domains: test.com
 server_env: production

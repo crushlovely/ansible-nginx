@@ -5,7 +5,7 @@
   ignore_errors: yes
 
 - name: Take Ownership of /opt
-  file: path=/opt/ owner={{ nginx.user }} group={{ nginx.group }} recurse=yes state=directory
+  file: path=/opt/ owner={{ app.user }} group={{ app.group }} recurse=yes state=directory
   sudo: yes
   when: result|failed
 
@@ -29,7 +29,7 @@
   when: result|failed
 
 - name: Unzip Nginx Tar
-  unarchive: src=/opt/nginx-{{ nginx.version }}.tar.gz dest=/opt copy=no group={{ nginx.group }} owner={{ nginx.user }}
+  unarchive: src=/opt/nginx-{{ nginx.version }}.tar.gz dest=/opt copy=no group={{ app.group }} owner={{ app.user }}
   when: result|failed
 
 - name: Download Third Party modules
@@ -37,7 +37,7 @@
   when: result|failed
 
 - name: Unzip Modules
-  unarchive: src=/opt/nginx-{{ nginx.version }}/modules.tar.gz dest=/opt/nginx-{{ nginx.version }} copy=no group={{ nginx.group }} owner={{ nginx.user }}
+  unarchive: src=/opt/nginx-{{ nginx.version }}/modules.tar.gz dest=/opt/nginx-{{ nginx.version }} copy=no group={{ app.group }} owner={{ app.user }}
   when: result|failed
 
 - include: passenger.yml
