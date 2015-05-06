@@ -14,6 +14,7 @@ nginx:
   passenger:
     version: 5.0.6
     prestart: http://test.com
+    log_file: "{{ app_path }}/log.log"
 app:
   user: ubuntu
   group: ubuntu
