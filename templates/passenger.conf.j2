@@ -11,7 +11,7 @@
   passenger_log_file {{ nginx.passenger.log_file }};
   passenger_user deploy;
   passenger_group deploy;
-  passenger_user_switching off;
+  passenger_user_switching on;
   passenger_pre_start {{ nginx.passenger.prestart }};
   passenger_instance_registry_dir /tmp;
   passenger_app_env {{ server_env }};

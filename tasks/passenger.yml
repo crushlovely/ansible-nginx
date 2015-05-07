@@ -13,3 +13,6 @@
 - name: Create Sites Enabled Directory
   file: path=/etc/nginx/sites-enabled state=directory owner=root group=root
   sudo: yes
+
+- name: Build Native Support
+  command: passenger-config build-native-support
