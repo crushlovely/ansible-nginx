@@ -9,7 +9,7 @@
   sudo: yes
   when: result|failed
 
-- name: Install dependancies
+- name: Install Dependancies
   action: apt pkg={{ item }} state=present
   sudo: yes
   when: result|failed
@@ -24,7 +24,7 @@
     - zlib1g
     - zlib1g-dev
 
-- name: Download Source
+- name: Download NGINX Source Code
   get_url: url=http://nginx.org/download/nginx-{{ nginx.version }}.tar.gz dest=/opt/
   when: result|failed
 
@@ -58,28 +58,27 @@
   sudo: yes
   when: result|failed
 
-- name: copy init.d configuration file
+- name: Copy Upstart Configuration File
   copy: src=nginx_upstart.conf dest=/etc/init/nginx.conf
   sudo: yes
   when: result|failed
 
-- name: Create conf.d Directory
+- name: Create Conf.d Directory
   file: path=/etc/nginx/conf.d state=directory owner=root group=root
   sudo: yes
-  when: result|failed
-
-- name:  Custom Config template placement
-  template: src=nginx.conf.j2 dest=/etc/nginx/nginx.conf  owner=root group=root
-  sudo: yes
-  when: result|failed
-
-- name: Move config files to server
-  copy: src=nginx dest=/etc/logrotate.d/nginx
-  sudo: yes
-  when: result|failed
-
-- include: custom.yml
-  when: custom == "true"
 
 - include: ssl.yml
   when: ssl == "true"
+
+- name:  Copy Nginx Configuration Template
+  template: src=nginx.conf.j2 dest=/etc/nginx/nginx.conf  owner=root group=root
+  sudo: yes
+
+- name: Copy Logrotate Configuration File
+  copy: src=nginx dest=/etc/logrotate.d/nginx
+  sudo: yes
+
+- include: custom.yml
+  when: custom == "true"
+  notify:
+    - restart nginx

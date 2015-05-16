@@ -1,11 +1,11 @@
 ---
-- name: Symlink Passenger directory
+- name: Sudoers | Symlink Passenger directory
   file: src=/opt/passenger-release-{{ nginx.passenger.version }} path=/opt/passenger state=link
 
-- name: Copy passenger-path file
+- name: Sudoers | Copy passenger-path file
   copy: src=passenger-path.sh dest=/etc/profile.d/passenger-path.sh owner=root group=root
   sudo: yes
 
-- name: Copy Sudoers template
+- name: Sudoers | Copy Sudoers template
   copy: src=sudoers dest=/etc/sudoers owner=root group=root validate='visudo -cf %s'
   sudo: yes
