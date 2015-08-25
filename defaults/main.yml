@@ -1,21 +1,19 @@
 ---
 app_name: test
 app_path: /srv/test/public
+app_user: ubuntu
+app_group: ubuntu
+server_env: production
 ssl: 'false'
 passenger: 'true'
 updates: 'true'
 custom: 'true'
-nginx:
-  version: 1.6.2
-  upstream_port: 5000
-  ssl_cert:
-    crt: ""
-    key: ""
-  passenger:
-    version: 5.0.6
-    prestart: http://test.com
-app:
-  user: ubuntu
-  group: ubuntu
+nginx_version: 1.6.2
+nginx_upstream_port: 5000
+nginx_ssl_cert:
+nginx_crt: ""
+nginx_key: ""
+nginx_passenger_version: 5.0.6
+nginx_passenger_prestart: http://test.com
+nginx_passenger_log_file: "{{ app_path }}/log.log"
 domains: test.com
-server_env: production

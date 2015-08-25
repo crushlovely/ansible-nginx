@@ -1,15 +1,15 @@
 ---
 - name: Check if installed
-  shell: /usr/bin/test `nginx -v 2>&1 | grep "nginx" | awk '{gsub("nginx/","",$3); print $3}'` = {{ nginx.version }} && echo True
+  shell: /usr/bin/test `nginx -v 2>&1 | grep "nginx" | awk '{gsub("nginx/","",$3); print $3}'` = {{ nginx_version }} && echo True
   register: result
   ignore_errors: yes
 
 - name: Take Ownership of /opt
-  file: path=/opt/ owner={{ app.user }} group={{ app.group }} recurse=yes state=directory
+  file: path=/opt/ owner={{ app_user }} group={{ app_group }} recurse=yes state=directory
   sudo: yes
   when: result|failed
 
-- name: Install dependancies
+- name: Install Dependancies
   action: apt pkg={{ item }} state=present
   sudo: yes
   when: result|failed
@@ -25,61 +25,65 @@
     - zlib1g-dev
 
 - name: Download Source
-  get_url: url=http://nginx.org/download/nginx-{{ nginx.version }}.tar.gz dest=/opt/
+  get_url: url=http://nginx.org/download/nginx-{{ nginx_version }}.tar.gz dest=/opt/
   when: result|failed
 
 - name: Unzip Nginx Tar
-  unarchive: src=/opt/nginx-{{ nginx.version }}.tar.gz dest=/opt copy=no group={{ app.group }} owner={{ app.user }}
+  unarchive: src=/opt/nginx-{{ nginx_version }}.tar.gz dest=/opt copy=no group={{ app_group }} owner={{ app_user }}
   when: result|failed
 
 - name: Download Third Party modules
-  get_url: url=http://www.dropbox.com/s/e3n2lin6dvqlaos/modules.tar.gz?dl=1 dest=/opt/nginx-{{ nginx.version }}
+  get_url: url=http://www.dropbox.com/s/e3n2lin6dvqlaos/modules.tar.gz?dl=1 dest=/opt/nginx-{{ nginx_version }}
   when: result|failed
 
 - name: Unzip Modules
-  unarchive: src=/opt/nginx-{{ nginx.version }}/modules.tar.gz dest=/opt/nginx-{{ nginx.version }} copy=no group={{ app.group }} owner={{ app.user }}
+  unarchive: src=/opt/nginx-{{ nginx_version }}/modules.tar.gz dest=/opt/nginx-{{ nginx_version }} copy=no group={{ app_group }} owner={{ app_user }}
   when: result|failed
 
 - include: passenger.yml
   when: passenger == "true"
 
 - name: Change Directory & Configure
-  shell: ./configure --user=www-data --group=www-data --prefix=/opt/nginx --sbin-path=/usr/sbin --conf-path=/etc/nginx/nginx.conf --error-log-path=/var/log/nginx/error.log --http-log-path=/var/log/nginx/access.log --lock-path=/var/run/nginx.lock --pid-path=/var/run/nginx.pid --with-http_geoip_module --with-http_gzip_static_module --with-http_realip_module --with-http_stub_status_module --with-http_ssl_module --with-http_sub_module --with-http_xslt_module --with-ipv6 --with-sha1=/usr/include/openssl --with-md5=/usr/include/openssl --with-mail --with-mail_ssl_module --add-module=modules/ngx_http_auth_pam_module-1.2 --add-module=modules/echo-nginx-module-0.51 --add-module=modules/nginx-upstream-fair --add-module=modules/nginx-dav-ext-module-0.0.3 chdir=/opt/nginx-{{ nginx.version }}
+  shell: ./configure --user=www-data --group=www-data --prefix=/opt/nginx --sbin-path=/usr/sbin --conf-path=/etc/nginx/nginx.conf --error-log-path=/var/log/nginx/error.log --http-log-path=/var/log/nginx/access.log --lock-path=/var/run/nginx.lock --pid-path=/var/run/nginx.pid --with-http_geoip_module --with-http_gzip_static_module --with-http_realip_module --with-http_stub_status_module --with-http_ssl_module --with-http_sub_module --with-http_xslt_module --with-ipv6 --with-sha1=/usr/include/openssl --with-md5=/usr/include/openssl --with-mail --with-mail_ssl_module --add-module=modules/ngx_http_auth_pam_module-1.2 --add-module=modules/echo-nginx-module-0.51 --add-module=modules/nginx-upstream-fair --add-module=modules/nginx-dav-ext-module-0.0.3 chdir=/opt/nginx-{{ nginx_version }}
   when: result|failed
   when: passenger == "false"
 
 - name: Make
-  shell: /usr/bin/make chdir=/opt/nginx-{{ nginx.version }}/
+  shell: /usr/bin/make chdir=/opt/nginx-{{ nginx_version }}/
   sudo: yes
   when: result|failed
 
 - name: Make Install
-  shell: /usr/bin/make install chdir=/opt/nginx-{{ nginx.version }}/
+  shell: /usr/bin/make install chdir=/opt/nginx-{{ nginx_version }}/
   sudo: yes
   when: result|failed
 
-- name: copy init.d configuration file
+- name: Copy Upstart Configuration File
   copy: src=nginx_upstart.conf dest=/etc/init/nginx.conf
   sudo: yes
   when: result|failed
 
-- name: Create conf.d Directory
+- name: Create Conf.d Directory
   file: path=/etc/nginx/conf.d state=directory owner=root group=root
   sudo: yes
-  when: result|failed
 
-- name:  Custom Config template placement
+- include: ssl.yml
+  when: ssl == "true"
+
+- name:  Copy Nginx Configuration Template
   template: src=nginx.conf.j2 dest=/etc/nginx/nginx.conf  owner=root group=root
   sudo: yes
-  when: result|failed
 
-- name: Move config files to server
+- name: Copy Logrotate Configuration File
   copy: src=nginx dest=/etc/logrotate.d/nginx
   sudo: yes
-  when: result|failed
 
 - include: custom.yml
   when: custom == "true"
+
+- name: restart nginx
+  service: name=nginx state=restarted
+  sudo: yes
 
 - include: ssl.yml
   when: ssl == "true"
